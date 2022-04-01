@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimalShelter
 {
+#pragma warning disable C51591
     public class Program
     {
         public static void Main(string[] args)
@@ -23,4 +24,5 @@ namespace AnimalShelter
                     webBuilder.UseStartup<Startup>();
                 });
     }
+#pragma warning disable C51591
 }

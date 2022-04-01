@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AnimalShelter.Models;
+using System;
+using System.Linq;
 
 namespace AnimalShelter.Controllers
 {
@@ -41,7 +43,56 @@ namespace AnimalShelter.Controllers
       _db.Animals.Add(animal);
       await _db.SaveChangesAsync();
 
-      return CreatedAtAction("Post", new { id = animal.AnimalId }, animal);
+      return CreatedAtAction(nameof(GetAnimal), new { id = animal.AnimalId }, animal);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Put(int id, Animal animal)
+    {
+      if (id != animal.AnimalId)
+      {
+        return BadRequest();
+      }
+
+      _db.Entry(animal).State = EntityState.Modified;
+
+      try
+      {
+        await _db.SaveChangesAsync();
+      }
+      catch (DbUpdateConcurrencyException)
+      {
+        if (!AnimalExists(id))
+        {
+          return NotFound();
+        }
+        else 
+        {
+          throw;
+        }
+      }
+
+      return NoContent();
+    }
+
+    private bool AnimalExists(int id)
+    {
+      return _db.Animals.Any(e => e.AnimalId == id);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteAnimal(int id)
+    {
+      var animal = await _db.Animals.FindAsync(id);
+      if (animal == null)
+      {
+        return NotFound();
+      }
+
+      _db.Animals.Remove(animal);
+      await _db.SaveChangesAsync();
+
+      return NoContent();
     }
   }
 }
